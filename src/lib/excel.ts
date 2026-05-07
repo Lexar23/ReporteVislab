@@ -28,7 +28,7 @@ function normalizeBranchName(name: string): string {
 
     return normalized;
 }
-
+ 
 export async function getReportData(): Promise<ReportData[]> {
     const filePath = path.join(process.cwd(), 'public', 'assets', 'reporte.xlsx');
 
