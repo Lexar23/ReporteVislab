@@ -58,7 +58,7 @@ export function SucursalesContent({ initialData }: SucursalesContentProps) {
                     </div>
                     <div className="flex-1">
                         <p className="text-slate-500 dark:text-slate-400 text-[10px] leading-tight">
-                            Datos de <span className="font-bold text-primary">{data.branchName}</span> ({months.find(m => m.value === filters.month)?.name} {filters.year}). 
+                            Datos de <span className="font-bold text-primary">{data.branchName}</span> ({months.find(m => m.value === filters.months[0])?.name} {filters.year}). 
                             Incluye ventas brutas, órdenes y desglose por cristal.
                         </p>
                     </div>
