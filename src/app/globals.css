@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+/* ============================================================
+   MODERN DESIGN TOKENS (Tailwind v4 Style)
+   ============================================================ */
+@theme {
+  /* Neutrals */
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
+
+  /* Core Palette */
+  --color-primary: #3b82f6;
+  --color-primary-light: #eff6ff;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #8b5cf6;
+  --color-secondary-light: #f5f3ff;
+  --color-secondary-dark: #6d28d9;
+
+  --color-accent: #f43f5e;
+  --color-accent-light: #fff1f2;
+  --color-accent-dark: #be123c;
+
+  /* UI Elements */
+  --color-muted: #64748b;
+  --color-muted-foreground: #94a3b8;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-border: #e2e8f0;
+  
+  /* Custom Animations */
+  --animate-text-shimmer: text-shimmer 4s linear infinite;
+
+  @keyframes text-shimmer {
+    to { background-position: 200% center; }
+  }
+}
+
+/* ============================================================
+   DARK MODE OVERRIDES
+   ============================================================ */
+@variant dark (&:where(.dark, .dark *));
+
+.dark {
+  --color-background: #020617;
+  --color-foreground: #f8fafc;
+
+  --color-primary: #60a5fa;
+  --color-primary-light: #172554;
+  --color-primary-dark: #3b82f6;
+  --color-primary-foreground: #020617;
+
+  --color-secondary: #a78bfa;
+  --color-secondary-light: #2e1065;
+  --color-secondary-dark: #8b5cf6;
+
+  --color-accent: #fb7185;
+  --color-accent-light: #4c0519;
+  --color-accent-dark: #f43f5e;
+
+  --color-muted: #94a3b8;
+  --color-muted-foreground: #334155;
+  --color-card: #0f172a;
+  --color-card-foreground: #f8fafc;
+  --color-border: #1e293b;
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* ============================================================
+   MODERN UTILITIES
+   ============================================================ */
+@layer components {
+  .glass-panel {
+    background-color: color-mix(in srgb, var(--color-card) 70%, transparent);
+    backdrop-filter: blur(20px);
+    border: 1px solid color-mix(in srgb, var(--color-foreground) 10%, transparent);
+  }
+
+  .premium-shadow {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+  }
+
+  .dark .premium-shadow {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] animate-text-shimmer;
+  }
+
+  /* Luxury Card Effect */
+  .luxury-card {
+    @apply relative overflow-hidden rounded-[2rem] transition-all duration-500;
+  }
+
+  .luxury-card::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5;
+  }
+
+  .luxury-card:hover::before {
+    @apply opacity-100;
+  }
+
+  /* Glow Effect */
+  .glow-primary {
+    @apply relative;
+  }
+
+  .glow-primary::after {
+    content: '';
+    @apply absolute -inset-1 bg-primary/20 blur-xl opacity-0 transition-opacity duration-300 rounded-full;
+  }
+
+  .glow-primary:hover::after {
+    @apply opacity-100;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-foreground) 10%, transparent);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-foreground) 20%, transparent);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
