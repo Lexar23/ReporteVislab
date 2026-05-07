@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui";
 import { DollarSign, ShoppingBag, Eye, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
+import { BranchData } from "@/types/sucursal";
 
 interface BranchStatsProps {
     data: BranchData;
