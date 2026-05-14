@@ -1,7 +1,9 @@
 "use client";
 
 import { BranchFilter } from "@/types/sucursal";
-import { ChevronDown, MapPin, Calendar, Clock } from "lucide-react";
+import { MapPin, Calendar, Clock } from "lucide-react";
+
+import { SearchableSelect } from "../ui/SearchableSelect";
 
 interface BranchFiltersProps {
     filters: BranchFilter;
@@ -37,39 +39,24 @@ export function BranchFilters({ filters, setFilters, branches, years, months }: 
         <div className="flex flex-col gap-4 mb-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Sucursal Select */}
-                <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
-                        <MapPin className="w-4 h-4" />
-                    </div>
-                    <select
-                        value={filters.branch}
-                        onChange={(e) => setFilters({ ...filters, branch: e.target.value })}
-                        className="w-full pl-10 pr-8 py-3 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-white/20 dark:border-white/5 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-[11px] text-slate-700 dark:text-slate-200 premium-shadow"
-                    >
-                        {branches.map((b) => (
-                            <option key={b} value={b}>{b}</option>
-                        ))}
-                    </select>
-                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                </div>
+                <SearchableSelect 
+                    value={filters.branch}
+                    onChange={(val) => setFilters({ ...filters, branch: val })}
+                    options={branches}
+                    placeholder="Buscar sucursal..."
+                    icon={<MapPin className="w-4 h-4" />}
+                />
 
                 {/* Year Select */}
-                <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
-                        <Calendar className="w-4 h-4" />
-                    </div>
-                    <select
-                        value={filters.year}
-                        onChange={(e) => setFilters({ ...filters, year: parseInt(e.target.value) })}
-                        className="w-full pl-10 pr-8 py-3 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-white/20 dark:border-white/5 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-[11px] text-slate-700 dark:text-slate-200 premium-shadow"
-                    >
-                        {years.map((y) => (
-                            <option key={y} value={y}>{y}</option>
-                        ))}
-                    </select>
-                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                </div>
+                <SearchableSelect 
+                    value={filters.year.toString()}
+                    onChange={(val) => setFilters({ ...filters, year: parseInt(val) })}
+                    options={years.map(y => y.toString())}
+                    placeholder="Buscar año..."
+                    icon={<Calendar className="w-4 h-4" />}
+                />
             </div>
+
 
             {/* Months Multi-select */}
             <div className="p-4 bg-white/30 dark:bg-slate-900/30 backdrop-blur-md border border-white/10 rounded-2xl">
