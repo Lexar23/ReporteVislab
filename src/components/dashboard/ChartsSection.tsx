@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, cn } from "@/components/ui";
 import { useTheme } from "next-themes";
 import {
@@ -56,21 +56,19 @@ export function ChartsSection({
         return `${parts[0]} ${parts[1]}`;
     };
 
-    const sortedDesigns = [...designDistribution]
-        .sort((a, b) => b.value - a.value);
+    const sortedDesigns = useMemo(() => [...designDistribution]
+        .sort((a, b) => b.value - a.value), [designDistribution]);
 
-    const sortedOptos = [...topOptometrasTotal]
+    const sortedOptos = useMemo(() => [...topOptometrasTotal]
         .sort((a, b) => b.total - a.total)
         .slice(0, 8)
-        .map(item => ({ ...item, name: shortenName(item.name) }));
+        .map(item => ({ ...item, name: shortenName(item.name) })), [topOptometrasTotal]);
 
-    const sortedBranches = [...salesByBranch]
+    const sortedBranches = useMemo(() => [...salesByBranch]
         .sort((a, b) => b.total - a.total)
-        .slice(0, 8);
+        .slice(0, 8), [salesByBranch]);
 
-    const totalOptos = sortedOptos.reduce((acc, curr) => acc + curr.total, 0);
-    const totalBranches = sortedBranches.reduce((acc, curr) => acc + curr.total, 0);
-    const totalProduction = qualityRatios.reduce((acc, curr) => acc + curr.value, 0);
+    const totalOptos = useMemo(() => sortedOptos.reduce((acc: number, curr: any) => acc + curr.total, 0), [sortedOptos]);
 
     if (!isMounted) return <div className="grid grid-cols-12 gap-6 mt-8 h-[500px] animate-pulse bg-slate-900/10 dark:bg-white/5 rounded-[2.5rem]" />;
 
@@ -133,7 +131,7 @@ export function ChartsSection({
                                         paddingAngle={5} dataKey="value" stroke="none"
                                         label={({ percent }) => `${((percent || 0) * 100).toFixed(0)}%`}
                                     >
-                                        {sortedDesigns.map((entry, index) => (
+                                        {sortedDesigns.map((entry: any, index: number) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
@@ -144,7 +142,7 @@ export function ChartsSection({
                         <div className="w-[55%] flex flex-col justify-center gap-1 pr-2">
                             <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Cantidad por Diseño</h3>
                             <div className="grid grid-cols-1 gap-1">
-                                {sortedDesigns.slice(0, 5).map((item, index) => (
+                                {sortedDesigns.slice(0, 5).map((item: any, index: number) => (
                                     <div key={index} className="flex items-center justify-between p-1.5 rounded-lg bg-white/5 border border-white/5">
                                         <div className="flex items-center gap-2 overflow-hidden">
                                             <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
@@ -169,7 +167,7 @@ export function ChartsSection({
                                         paddingAngle={5} dataKey="total" stroke="none"
                                         label={({ percent }) => `${((percent || 0) * 100).toFixed(0)}%`}
                                     >
-                                        {sortedOptos.map((entry, index) => (
+                                        {sortedOptos.map((entry: any, index: number) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
@@ -183,7 +181,7 @@ export function ChartsSection({
                         <div className="w-[55%] flex flex-col justify-center gap-1 pr-2">
                             <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Rendimiento Comercial</h3>
                             <div className="grid grid-cols-1 gap-1">
-                                {sortedOptos.slice(0, 5).map((item, index) => (
+                                {sortedOptos.slice(0, 5).map((item: any, index: number) => (
                                     <div key={index} className="flex items-center justify-between p-1.5 rounded-lg bg-white/5 border border-white/5">
                                         <div className="flex items-center gap-2 overflow-hidden">
                                             <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }} />

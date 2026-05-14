@@ -44,11 +44,17 @@ export function SucursalesContent({ initialData }: SucursalesContentProps) {
                 months={months} 
             />
 
-            {/* Numerical Stats */}
-            <BranchStats data={data} />
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+                {/* Left Side: Numerical Stats */}
+                <div className="xl:col-span-3">
+                    <BranchStats data={data} />
+                </div>
 
-            {/* Charts Section */}
-            <BranchCharts data={data} />
+                {/* Right Side: Charts Section */}
+                <div className="xl:col-span-9">
+                    <BranchCharts data={data} />
+                </div>
+            </div>
 
             {/* Extra Info / Footer */}
             <div className="mt-4 p-4 bg-gradient-to-br from-primary/5 to-violet-500/5 rounded-2xl border border-white/20 dark:border-white/5 premium-shadow">

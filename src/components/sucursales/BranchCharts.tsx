@@ -116,11 +116,18 @@ export function BranchCharts({ data }: BranchChartsProps) {
                                         boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' 
                                     }}
                                 />
-                                <Bar dataKey="count" radius={[10, 10, 0, 0]}>
+                                <Bar dataKey="count" name="Unidades" radius={[10, 10, 0, 0]}>
                                     {data.lensTypes.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Bar>
+                                <Legend 
+                                    verticalAlign="bottom" 
+                                    align="center" 
+                                    iconType="circle"
+                                    iconSize={8}
+                                    formatter={(value) => <span className="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400">{value}</span>}
+                                />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>

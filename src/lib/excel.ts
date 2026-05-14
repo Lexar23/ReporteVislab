@@ -21,11 +21,6 @@ function normalizeBranchName(name: string): string {
         .replace(/\s+/g, " ")
         .trim();
 
-    // Standardize common variations
-    normalized = normalized.replace(/^CENTRO\s+/, "CEOM ");
-    normalized = normalized.replace(/\s+LOS\s+YOSES$/, " YOSES");
-    normalized = normalized.replace(/\s+LOS\s+YOSES\s+/, " YOSES ");
-
     return normalized;
 }
  

@@ -2,142 +2,63 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ReportData } from "@/types/report";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { ChartsSection } from "@/components/dashboard/ChartsSection";
-import { DataDisplay } from "@/components/dashboard/DataDisplay";
-import { ReworkManager } from "@/components/dashboard/ReworkManager";
-import { Filter, Calendar, RefreshCw, LayoutDashboard, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Filter, Calendar, LayoutDashboard } from "lucide-react";
+import { motion } from "framer-motion";
 import { useRefresh } from "@/context/RefreshContext";
 
+const MONTH_NAMES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+
 interface DashboardContentProps {
-    initialData: ReportData[];
+    initialStats: {
+        years: string[];
+        currentYear: string;
+        previousYear: string;
+        salesByMonthComparison: any[];
+        topOptometrasTotal: any[];
+        topOptometrasQty: any[];
+        designDistribution: any[];
+        sucursalLider: string;
+        salesByBranch: any[];
+        qualityRatios: any[];
+        totalVentas: number;
+        totalFacturas: number;
+        retrabajosCount: number;
+    };
 }
 
-const MONTH_NAMES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sept", "Oct", "Nov", "Dic"];
-
-export function DashboardContent({ initialData }: DashboardContentProps) {
+export function DashboardContent({ initialStats }: DashboardContentProps) {
     const router = useRouter();
     const { isRefreshing } = useRefresh();
-    const [selectedYear, setSelectedYear] = useState<string | null>(null);
+    const [selectedYear, setSelectedYear] = useState<string>(initialStats.currentYear);
     const [selectedMonth, setSelectedMonth] = useState<string>("all");
+    const [stats, setStats] = useState(initialStats);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const years = useMemo(() => {
-        const yrs = Array.from(new Set(initialData.map(d => d.fecha.getFullYear().toString())));
-        return yrs.sort((a, b) => b.localeCompare(a));
-    }, [initialData]);
+    const years = initialStats.years;
 
-    // Initialize selectedYear to the most recent year on first render
-    useEffect(() => {
-        if (!selectedYear && years.length > 0) {
-            setSelectedYear(years[0]);
+    // Function to fetch stats from API when filters change
+    const updateStats = async (year: string, month: string) => {
+        setIsLoading(true);
+        try {
+            const res = await fetch(`/api/stats?year=${year}&month=${month}`);
+            const newStats = await res.json();
+            setStats(newStats);
+        } catch (error) {
+            console.error("Failed to update stats", error);
+        } finally {
+            setIsLoading(false);
         }
-    }, [years, selectedYear]);
-
-    const normalizeString = (str: string) => {
-        return str
-            .toUpperCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/\s+/g, " ")
-            .trim();
     };
 
-    const stats = useMemo(() => {
-        const currentYear = selectedYear === "all" ? Array.from(years)[0] : (selectedYear || Array.from(years)[0]);
-        const previousYear = (parseInt(currentYear) - 1).toString();
-
-        const currentYearData = initialData.filter(d => d.fecha.getFullYear().toString() === currentYear);
-        const previousYearData = initialData.filter(d => d.fecha.getFullYear().toString() === previousYear);
-
-        const fData = initialData.filter(d => {
-            const matchesYear = selectedYear === "all" || d.fecha.getFullYear().toString() === selectedYear;
-            const matchesMonth = selectedMonth === "all" || d.fecha.getMonth().toString() === selectedMonth;
-            return matchesYear && matchesMonth;
-        });
-
-        const comparison = MONTH_NAMES.map((month, idx) => {
-            const curVal = currentYearData
-                .filter(d => d.fecha.getMonth() === idx)
-                .reduce((acc, d) => acc + d.total, 0);
-            const prevVal = previousYearData
-                .filter(d => d.fecha.getMonth() === idx)
-                .reduce((acc, d) => acc + d.total, 0);
-
-            const growth = prevVal > 0 ? ((curVal - prevVal) / prevVal) * 100 : 0;
-            return { mes: month, current: curVal, previous: prevVal, growth };
-        });
-
-        const optoStats: Record<string, { total: number, qty: number }> = {};
-        fData.forEach(d => {
-            const rawName = d.optometra || 'Desconocido';
-            const name = normalizeString(rawName);
-            if (name === 'N/A' || name === 'UNDEFINED' || name === '') return;
-
-            if (!optoStats[name]) optoStats[name] = { total: 0, qty: 0 };
-            if (!d.retrabajo) optoStats[name].total += d.total;
-            optoStats[name].qty += d.cantidad;
-        });
-
-        const sortedOptos = Object.entries(optoStats)
-            .map(([name, stats]) => ({ name, ...stats }))
-            .sort((a, b) => b.total - a.total)
-            .slice(0, 10);
-
-        const designStats: Record<string, number> = {};
-        fData.forEach(d => {
-            const rawDesign = d.servicioArticulo || 'N/D';
-            const design = normalizeString(rawDesign);
-            if (design !== 'N/A' && design !== 'N/D' && design !== '') {
-                designStats[design] = (designStats[design] || 0) + d.cantidad;
-            }
-        });
-        const designDist = Object.entries(designStats)
-            .map(([name, value]) => ({ name, value }))
-            .sort((a, b) => b.value - a.value)
-            .slice(0, 8);
-
-        const branchSalesMap: Record<string, number> = {};
-        fData.forEach(d => {
-            const branch = d.sucursal || 'N/A';
-            if (!d.retrabajo) {
-                branchSalesMap[branch] = (branchSalesMap[branch] || 0) + d.total;
-            }
-        });
-
-        const branchStatsArr = Object.entries(branchSalesMap)
-            .map(([name, total]) => ({ sucursal: name, total }))
-            .sort((a, b) => b.total - a.total)
-            .slice(0, 8);
-
-        const totalRecords = fData.length;
-        const reworksCount = fData.filter(d => d.retrabajo).length;
-        const goodCount = totalRecords - reworksCount;
-
-        const qualityRatios = [
-            { name: 'Lentes Buenos', value: goodCount },
-            { name: 'Retrabajos', value: reworksCount }
-        ];
-
-        const bestBranch = branchStatsArr[0]?.sucursal || 'N/A';
-
-        return {
-            filteredData: fData,
-            salesByMonthComparison: comparison,
-            topOptometrasTotal: sortedOptos,
-            topOptometrasQty: [...sortedOptos].sort((a, b) => b.qty - a.qty),
-            designDistribution: designDist,
-            sucursalLider: bestBranch,
-            salesByBranch: branchStatsArr,
-            qualityRatios,
-            currentYear,
-            previousYear
-        };
-    }, [initialData, selectedYear, selectedMonth, years]);
+    useEffect(() => {
+        if (selectedYear !== initialStats.currentYear || selectedMonth !== "all") {
+            updateStats(selectedYear, selectedMonth);
+        }
+    }, [selectedYear, selectedMonth]);
 
     const {
-        filteredData,
         salesByMonthComparison,
         topOptometrasTotal,
         topOptometrasQty,
@@ -146,7 +67,10 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
         salesByBranch,
         qualityRatios,
         currentYear,
-        previousYear
+        previousYear,
+        totalVentas,
+        totalFacturas,
+        retrabajosCount
     } = stats;
 
     return (
@@ -206,7 +130,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
                                 >
                                     Vista Consolidada
                                 </button>
-                                {MONTH_NAMES.map((m, i) => (
+                                {MONTH_NAMES.map((m: string, i: number) => (
                                     <button
                                         key={i}
                                         onClick={() => setSelectedMonth(i.toString())}
@@ -246,9 +170,9 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
                     className="shrink-0"
                 >
                     <StatsCards
-                        totalVentas={filteredData.reduce((acc, d) => acc + d.total, 0)}
-                        totalFacturas={filteredData.length}
-                        retrabajos={filteredData.filter(d => d.retrabajo).length}
+                        totalVentas={totalVentas}
+                        totalFacturas={totalFacturas}
+                        retrabajos={retrabajosCount}
                         sucursalMasActiva={sucursalLider}
                     />
                 </motion.div>

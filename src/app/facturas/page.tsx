@@ -6,8 +6,6 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function FacturasPage() {
-    const rawData = await getReportData();
-
     return (
         <main className="pb-20">
             <section className="relative pt-12 pb-12 px-6 overflow-hidden">
@@ -27,7 +25,7 @@ export default async function FacturasPage() {
             </section>
 
             <section className="max-w-7xl mx-auto px-6">
-                <DataDisplay data={rawData} />
+                <DataDisplay />
             </section>
         </main>
     );

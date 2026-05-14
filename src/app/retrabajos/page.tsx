@@ -7,9 +7,6 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function RetrabajosPage() {
-    const rawData = await getReportData();
-    const reworksOnly = rawData.filter(d => d.retrabajo);
-
     return (
         <main className="pb-20">
             <section className="relative pt-12 pb-12 px-6 overflow-hidden">
@@ -36,7 +33,7 @@ export default async function RetrabajosPage() {
                         <h2 className="text-xl font-bold">Historial Registrado</h2>
                         <p className="text-sm text-slate-400">Listado de facturas marcadas como retrabajo en el sistema.</p>
                     </div>
-                    <DataDisplay data={reworksOnly} />
+                    <DataDisplay initialReworkOnly={true} />
                 </div>
             </section>
         </main>
